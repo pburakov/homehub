@@ -37,6 +37,7 @@ Instructions for Raspbian Linux are to be added. Until then, proto sources are i
 ### Prerequisites
 
 - Go 1.11.4+
+- ffmpeg
 
 Download and unpack latest Go version:
 
@@ -59,6 +60,8 @@ $ cat >> ~/.bashrc << 'EOF'
   export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
   EOF
 ```
+
+Use `apt-get` to install `ffmpeg` package (`sudo apt-get install ffmpeg`).
 
 ### Build
 
