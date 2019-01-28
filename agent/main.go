@@ -15,38 +15,48 @@ import (
 )
 
 const (
-	serverAddress     = "localhost:31321" // HomeHub "mothership" server
-	hubPort           = 31322             // Port the hub is listening to
-	appID             = "homehub"         // App identifier used to generate unique hub id
-	checkInInterval   = time.Second * 10  // Defines frequency of check-ins
-	connectionTimeout = time.Second * 2   // How long to wait for check-in to succeed¬
+	// Default HomeHub "mothership" server (local configuration)
+	defaultMothershipServer = "localhost:31321"
+
+	// Default address and port the hub is listening to
+	defaultAddress = "0.0.0.0"
+	defaultPort    = 31322
+
+	// App identifier used to generate unique hub id
+	appID = "homehub"
+
+	checkInInterval   = time.Second * 10 // Defines frequency of check-ins
+	connectionTimeout = time.Second * 2  // How long to wait for check-in to succeed¬
 )
 
 func main() {
-	c := setUpConnection(serverAddress)
+	// Get flags from command line
+	mothershipAddress := flag.String("r", defaultMothershipServer, "Remote address (including port) of a mothership server")
+	localAddress := flag.String("a", defaultAddress, "Local address to bind to")
+	localPort := flag.Uint("p", defaultPort, "Local port to bind to")
+	useHTTPS := flag.Bool("https", false, "Use HTTPS")
+
+	externalIP := mustGetExternalIP()
+
+	c := setUpConnection(*mothershipAddress)
 	defer c.Close()
 
 	client := hh.NewHomeHubClient(c)
 
+	// Initiate check-in and then repeat with intervals
+	checkIn(client, connectionTimeout, externalIP, *localPort)
 	ticker := time.NewTicker(checkInInterval)
-
-	// Initiate check-in and repeat with intervals
-	checkIn(client, connectionTimeout)
 	go func() {
 		for range ticker.C {
-			checkIn(client, connectionTimeout)
+			checkIn(client, connectionTimeout, externalIP, *localPort)
 		}
 	}()
 
-	startVideoServer()
-
-	// Wait forever until interrupted
-	wait()
-
-	// TODO: implement graceful stop
+	mustStartVideoServer(fmt.Sprintf("%s:%d", *localAddress, *localPort), *useHTTPS)
 }
 
-func getExternalIP() string {
+// mustGetExternalIP resolves external IP using server ifconfig.me
+func mustGetExternalIP() string {
 	resp, err := http.Get("http://ifconfig.me")
 	if err != nil {
 		log.Fatalf("Could not determine machine address: %s", err)
@@ -75,14 +85,14 @@ func getMachineId(appID string) string {
 	return m
 }
 
-func checkIn(c hh.HomeHubClient, timeout time.Duration) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+func checkIn(c hh.HomeHubClient, t time.Duration, address string, port uint) {
+	ctx, cancel := context.WithTimeout(context.Background(), t)
 	defer cancel()
 
 	r, err := c.CheckIn(ctx, &hh.CheckInRequest{
 		HubId:   getMachineId(appID),
-		Address: getExternalIP(),
-		Port:    hubPort,
+		Address: address,
+		Port:    int32(port),
 	})
 	if err == nil {
 		log.Printf("Check-in ACK: %s", r.Result)
@@ -91,22 +101,15 @@ func checkIn(c hh.HomeHubClient, timeout time.Duration) {
 	}
 }
 
-func wait() {
-	select {}
-}
-
-func startVideoServer() {
-	address := flag.String("address", fmt.Sprintf("localhost:%d", hubPort), "The address (including port) to bind to")
-	useHTTPS := flag.Bool("https", false, "Use HTTPS")
+func mustStartVideoServer(address string, useHTTPS bool) {
 	flag.Parse()
 
-	s, err := server.New(*useHTTPS)
+	s, err := server.New(useHTTPS)
 	if err != nil {
-		fmt.Println("Unable to create server:", err)
-		return
+		log.Fatalf("Unable to create server: %s", err)
 	}
 
-	if err := s.Start(*address); err != nil {
-		fmt.Println("Unable to start server:", err)
+	if err := s.Start(address); err != nil {
+		log.Fatalf("Unable to start server: %s", err)
 	}
 }
