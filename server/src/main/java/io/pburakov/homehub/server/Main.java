@@ -15,7 +15,7 @@ import org.pmw.tinylog.Logger;
 
 public class Main {
 
-  private static final int DEFAULT_PORT = 31321;
+  private static final int DEFAULT_PORT = 8000;
 
   public static void main(String... args) throws InterruptedException, IOException {
     int port = DEFAULT_PORT;

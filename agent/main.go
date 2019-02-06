@@ -3,9 +3,7 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/denisbrodbeck/machineid"
-	"github.com/joshb/pi-camera-go/server"
 	hh "github.com/pburakov/homehub/schema"
 	"google.golang.org/grpc"
 	"io/ioutil"
@@ -16,11 +14,10 @@ import (
 
 const (
 	// Default "mothership" server address
-	defaultHub = "localhost:31321"
+	defaultHub = "localhost:8000"
 
-	// Default address and port the agent is listening to
-	defaultAddress = "0.0.0.0"
-	defaultPort    = 31322
+	// Default port the agent is listening to
+	defaultPort = 31322
 
 	// App identifier used to generate unique hub id
 	appID = "homehub"
@@ -32,9 +29,7 @@ const (
 func main() {
 	// Get flags from command line
 	hubAddress := flag.String("r", defaultHub, "Remote hub address (including port), mothership server to check in with")
-	localAddress := flag.String("a", defaultAddress, "Local address to bind to")
 	localPort := flag.Uint("p", defaultPort, "Local port to bind to")
-	useHTTPS := flag.Bool("https", false, "Use HTTPS")
 
 	c := setUpConnection(*hubAddress)
 	defer c.Close()
@@ -50,7 +45,7 @@ func main() {
 		}
 	}()
 
-	mustStartVideoServer(fmt.Sprintf("%s:%d", *localAddress, *localPort), *useHTTPS)
+	wait()
 }
 
 // mustGetExternalIP resolves external IP using server ifconfig.me or 'unknown'
@@ -101,15 +96,6 @@ func checkIn(c hh.HomeHubClient, t time.Duration, port uint) {
 	}
 }
 
-func mustStartVideoServer(address string, useHTTPS bool) {
-	flag.Parse()
-
-	s, err := server.New(useHTTPS)
-	if err != nil {
-		log.Fatalf("Unable to create server: %s", err)
-	}
-
-	if err := s.Start(address); err != nil {
-		log.Fatalf("Unable to start server: %s", err)
-	}
+func wait() {
+	select {}
 }
