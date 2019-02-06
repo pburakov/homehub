@@ -30,6 +30,7 @@ func main() {
 	// Get flags from command line
 	hubAddress := flag.String("r", defaultHub, "Remote hub address (including port), mothership server to check in with")
 	localPort := flag.Uint("p", defaultPort, "Local port to bind to")
+	flag.Parse()
 
 	c := setUpConnection(*hubAddress)
 	defer c.Close()
