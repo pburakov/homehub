@@ -14,7 +14,7 @@ import (
 
 const (
 	// Default "mothership" server address
-	defaultHub = "localhost:8000"
+	defaultHub = "localhost:31321"
 
 	// Default port the agent is listening to
 	defaultPort = 31322
