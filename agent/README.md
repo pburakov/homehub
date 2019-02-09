@@ -28,7 +28,7 @@ $ mkdir schema
 $ protoc --go_out=plugins=grpc:schema ../schema/src/main/proto/*.proto --proto_path=../schema/src/main/proto
 ```
 
-## Build Application
+## Build Application (macOS)
 
 Make sure `agent` is the PWD. 
 
@@ -39,6 +39,49 @@ $ env GOOS=linux GOARCH=arm GOARM=7 go build
 ```
 
 Go will download required packages and install them into Go path. This will generate `homehub` executable. 
+
+Run with:
+
+```bash
+$ ./homehub
+``` 
+
+Instructions for Raspbian Linux are to be added. Until then, proto sources are included with the repo. 
+
+## Build Application (Raspbian Linux)
+
+### Prerequisites
+
+- Go 1.11.4+
+- ffmpeg
+
+If `apt-get` does not contain the required Go version, download and unpack specific Go version:
+
+```bash
+$ wget https://storage.googleapis.com/golang/go1.11.4.linux-armv6l.tar.gz
+$ sudo tar -C /usr/local -xvf go1.11.4.linux-armv6l.tar.gz
+```
+
+Verify installed version (should match 1.11.4):
+
+```bash
+$ go version
+```
+
+Define `GOPATH` and path to Go binaries:
+
+```bash
+$ cat >> ~/.bashrc << 'EOF'
+  export GOPATH=$HOME/go
+  export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
+  EOF
+```
+
+Make sure `agent` is the PWD. To build under Raspbian environment, simply run:  
+
+```bash
+$ go build
+```
 
 Run with:
 
