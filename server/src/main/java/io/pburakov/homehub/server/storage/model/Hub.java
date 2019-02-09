@@ -14,7 +14,11 @@ public interface Hub {
 
   String address();
 
-  int port();
+  int webPort();
+
+  int streamPort();
+
+  int metaPort();
 
   DateTime createdAt();
 
@@ -27,7 +31,9 @@ public interface Hub {
       return new HubBuilder()
           .hubId(rs.getString("hub_id"))
           .address(rs.getString("address"))
-          .port(rs.getInt("port"))
+          .webPort(rs.getInt("web_port"))
+          .streamPort(rs.getInt("stream_port"))
+          .metaPort(rs.getInt("meta_port"))
           .createdAt(new DateTime(rs.getTimestamp("created_at")))
           .updatedAt(new DateTime(rs.getTimestamp("updated_at")))
           .build();

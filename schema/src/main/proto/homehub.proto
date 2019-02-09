@@ -4,26 +4,31 @@ option java_multiple_files = true;
 option java_package = "io.pburakov.homehub.schema";
 
 enum Result {
-    RECEIVED_NEW = 0;
-    RECEIVED_UPDATED = 1;
-    RECEIVED_UNCHANGED = 2;
+  RECEIVED_NEW = 0;
+  RECEIVED_UPDATED = 1;
+  RECEIVED_UNCHANGED = 2;
 
-    DECLINED = 10;
+  DECLINED = 10;
 }
 
 message CheckInRequest {
-    // hubId is expected to be a self-generated stable 64-character long hashed machine id
-    string hubId = 1;
-    string address = 2;
-    int32 port = 3;
+  // hubId is expected to be a self-generated stable 64-character long hashed machine id
+  string hubId = 1;
+  string address = 2;
+  // web service http access port
+  int32 webPort = 3;
+  // port for video stream live feed
+  int32 streamPort = 4;
+  // port for meta information (ambient temperature, humidity, cpu etc.)
+  int32 metaPort = 5;
 }
 
 message Ack {
-    Result result = 1;
+  Result result = 1;
 }
 
 service HomeHub {
-    // Every hub is expected to check in repeatedly. Data can be sent only to a successfully
-    // checked-in hub.
-    rpc CheckIn (CheckInRequest) returns (Ack);
+  // Every hub is expected to check in repeatedly. Data can be sent only to a successfully
+  // checked-in hub.
+  rpc CheckIn (CheckInRequest) returns (Ack);
 }

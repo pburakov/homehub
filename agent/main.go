@@ -56,6 +56,6 @@ func buildRequest(port uint) (*hh.CheckInRequest, error) {
 	return &hh.CheckInRequest{
 		HubId:   util.MachineId(appID),
 		Address: eip,
-		Port:    int32(port),
+		WebPort: int32(port),
 	}, nil
 }

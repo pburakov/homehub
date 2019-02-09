@@ -50,44 +50,50 @@ public class HomeHubServiceTest {
 
   @Test
   public void TestCheckInFlows() {
-    String hubId = "testId";
+    String hubId = "testhub123";
     String address = "test123";
-    int port = 4242;
+    int ports = 4242;
 
-    givenCheckInRequest(hubId, address, port);
+    givenCheckInRequest(hubId, address, ports);
     verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_NEW).build());
 
     // Verify record is stored
     Hub hub = hubDao.select(hubId);
     assertThat(hub.hubId()).isEqualTo(hubId);
     assertThat(hub.address()).isEqualTo(address);
-    assertThat(hub.port()).isEqualTo(port);
+    assertThat(hub.webPort()).isEqualTo(ports);
+    assertThat(hub.streamPort()).isEqualTo(ports);
+    assertThat(hub.metaPort()).isEqualTo(ports);
 
     // Second check-in should yield a different ack
-    givenCheckInRequest(hubId, address, port);
+    givenCheckInRequest(hubId, address, ports);
     verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_UNCHANGED).build());
 
     // Check-in with new address should yield a different ack
     String newAddress = "newAddress";
-    int newPort = 4343;
+    int newPorts = 4343;
 
-    givenCheckInRequest(hubId, newAddress, newPort);
+    givenCheckInRequest(hubId, newAddress, newPorts);
     verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_UPDATED).build());
 
     // Updated address and port should be stored
     Hub updatedHub = hubDao.select(hubId);
     assertThat(updatedHub.hubId()).isEqualTo(hubId);
     assertThat(updatedHub.address()).isEqualTo(newAddress);
-    assertThat(updatedHub.port()).isEqualTo(newPort);
+    assertThat(updatedHub.webPort()).isEqualTo(newPorts);
+    assertThat(updatedHub.streamPort()).isEqualTo(newPorts);
+    assertThat(updatedHub.metaPort()).isEqualTo(newPorts);
     assertThat(updatedHub.updatedAt()).isGreaterThan(updatedHub.createdAt());
   }
 
-  private void givenCheckInRequest(String hubId, String address, int port) {
+  private void givenCheckInRequest(String hubId, String address, int ports) {
     this.homeHubService.checkIn(
         CheckInRequest.newBuilder()
             .setHubId(hubId)
             .setAddress(address)
-            .setPort(port)
+            .setWebPort(ports)
+            .setStreamPort(ports)
+            .setMetaPort(ports)
             .build(),
         this.observer);
   }
