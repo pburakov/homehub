@@ -8,9 +8,9 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.joda.time.DateTime;
 
 @AutoMatter
-public interface Hub {
+public interface Agent {
 
-  String hubId();
+  String agentId();
 
   String address();
 
@@ -24,12 +24,12 @@ public interface Hub {
 
   DateTime updatedAt();
 
-  class Mapper implements RowMapper<Hub> {
+  class Mapper implements RowMapper<Agent> {
 
     @Override
-    public Hub map(ResultSet rs, StatementContext ctx) throws SQLException {
-      return new HubBuilder()
-          .hubId(rs.getString("hub_id"))
+    public Agent map(ResultSet rs, StatementContext ctx) throws SQLException {
+      return new AgentBuilder()
+          .agentId(rs.getString("agent_id"))
           .address(rs.getString("address"))
           .webPort(rs.getInt("web_port"))
           .streamPort(rs.getInt("stream_port"))

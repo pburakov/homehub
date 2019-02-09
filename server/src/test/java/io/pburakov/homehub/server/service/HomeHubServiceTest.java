@@ -9,7 +9,7 @@ import io.pburakov.homehub.schema.Ack;
 import io.pburakov.homehub.schema.CheckInRequest;
 import io.pburakov.homehub.schema.Result;
 import io.pburakov.homehub.server.storage.dao.HubDao;
-import io.pburakov.homehub.server.storage.model.Hub;
+import io.pburakov.homehub.server.storage.model.Agent;
 import java.io.IOException;
 import java.util.Properties;
 import org.jdbi.v3.core.Jdbi;
@@ -49,47 +49,50 @@ public class HomeHubServiceTest {
   }
 
   @Test
-  public void TestCheckInFlows() {
-    String hubId = "testhub123";
+  public void TestCheckInFlows() throws InterruptedException {
+    String agentId = "testagent123";
     String address = "test123";
     int ports = 4242;
 
-    givenCheckInRequest(hubId, address, ports);
+    givenCheckInRequest(agentId, address, ports);
     verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_NEW).build());
 
     // Verify record is stored
-    Hub hub = hubDao.select(hubId);
-    assertThat(hub.hubId()).isEqualTo(hubId);
-    assertThat(hub.address()).isEqualTo(address);
-    assertThat(hub.webPort()).isEqualTo(ports);
-    assertThat(hub.streamPort()).isEqualTo(ports);
-    assertThat(hub.metaPort()).isEqualTo(ports);
+    Agent agent = hubDao.select(agentId);
+    assertThat(agent.agentId()).isEqualTo(agentId);
+    assertThat(agent.address()).isEqualTo(address);
+    assertThat(agent.webPort()).isEqualTo(ports);
+    assertThat(agent.streamPort()).isEqualTo(ports);
+    assertThat(agent.metaPort()).isEqualTo(ports);
 
     // Second check-in should yield a different ack
-    givenCheckInRequest(hubId, address, ports);
+    givenCheckInRequest(agentId, address, ports);
     verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_UNCHANGED).build());
 
     // Check-in with new address should yield a different ack
     String newAddress = "newAddress";
     int newPorts = 4343;
 
-    givenCheckInRequest(hubId, newAddress, newPorts);
+    // Wait at least 1s to make sure timestamp is updated
+    Thread.sleep(1000);
+
+    givenCheckInRequest(agentId, newAddress, newPorts);
     verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_UPDATED).build());
 
     // Updated address and port should be stored
-    Hub updatedHub = hubDao.select(hubId);
-    assertThat(updatedHub.hubId()).isEqualTo(hubId);
-    assertThat(updatedHub.address()).isEqualTo(newAddress);
-    assertThat(updatedHub.webPort()).isEqualTo(newPorts);
-    assertThat(updatedHub.streamPort()).isEqualTo(newPorts);
-    assertThat(updatedHub.metaPort()).isEqualTo(newPorts);
-    assertThat(updatedHub.updatedAt()).isGreaterThan(updatedHub.createdAt());
+    Agent updatedAgent = hubDao.select(agentId);
+    assertThat(updatedAgent.agentId()).isEqualTo(agentId);
+    assertThat(updatedAgent.address()).isEqualTo(newAddress);
+    assertThat(updatedAgent.webPort()).isEqualTo(newPorts);
+    assertThat(updatedAgent.streamPort()).isEqualTo(newPorts);
+    assertThat(updatedAgent.metaPort()).isEqualTo(newPorts);
+    assertThat(updatedAgent.updatedAt()).isGreaterThan(updatedAgent.createdAt());
   }
 
-  private void givenCheckInRequest(String hubId, String address, int ports) {
+  private void givenCheckInRequest(String agentId, String address, int ports) {
     this.homeHubService.checkIn(
         CheckInRequest.newBuilder()
-            .setHubId(hubId)
+            .setAgentId(agentId)
             .setAddress(address)
             .setWebPort(ports)
             .setStreamPort(ports)

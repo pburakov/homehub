@@ -20,10 +20,10 @@ func Schedule(action func(), interval time.Duration) {
 	}()
 }
 
-func MachineId(appID string) string {
+func MustGetMachineId(appID string) string {
 	m, e := machineid.ProtectedID(appID)
 	if e != nil {
-		Fatal(fmt.Errorf("unable to generate machine id: %s", e))
+		Fatal(fmt.Errorf("error generating machine id: %s", e))
 	}
 	return m
 }

@@ -9,7 +9,10 @@ import (
 	"time"
 )
 
-const confFile = "conf/agent.json"
+const (
+	AppID    = "homehub"
+	confFile = "conf/agent.json"
+)
 
 type Ports struct {
 	Web    uint
@@ -18,7 +21,7 @@ type Ports struct {
 }
 
 type Configuration struct {
-	AppId             string `json:"app_id"`
+	AgentId           string
 	Ports             Ports
 	RemoteHubAddress  string        `json:"remote_hub_address"`
 	CheckInInterval   time.Duration `json:"check_in_interval_seconds"`
@@ -40,7 +43,8 @@ func Init() *Configuration {
 		util.Fatal(fmt.Errorf("invalid configuration file: %s", e))
 	}
 
-	// Convert durations
+	// Populate auto-generated fields and convert durations
+	c.AgentId = util.MustGetMachineId(AppID)
 	c.CheckInInterval = c.CheckInInterval * time.Second
 	c.ConnectionTimeout = c.ConnectionTimeout * time.Second
 

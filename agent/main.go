@@ -27,7 +27,12 @@ func main() {
 	client := hh.NewHomeHubClient(conn)
 
 	util.Schedule(func() {
-		req, _ := rpc.BuildRequest(config.AppId, *fWebPort, *fStreamPort, *fMetaPort)
+		eIP, e := util.GetExternalIP()
+		if e != nil {
+			log.Printf("Error obtaining external address: %s", e)
+			return
+		}
+		req := rpc.BuildRequest(config.AgentId, eIP, *fWebPort, *fStreamPort, *fMetaPort)
 		res, e := rpc.CheckIn(client, config.ConnectionTimeout, req)
 		if e != nil {
 			log.Printf("Check-in failed: %s", e)

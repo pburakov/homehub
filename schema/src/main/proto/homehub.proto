@@ -12,8 +12,8 @@ enum Result {
 }
 
 message CheckInRequest {
-  // hubId is expected to be a self-generated stable 64-character long hashed machine id
-  string hubId = 1;
+  // agentId is expected to be a self-generated stable 64-character long hashed machine id
+  string agentId = 1;
   string address = 2;
   // web service http access port
   int32 webPort = 3;
