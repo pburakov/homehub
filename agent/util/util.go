@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"github.com/denisbrodbeck/machineid"
 	"io/ioutil"
 	"net/http"
@@ -22,7 +23,7 @@ func Schedule(action func(), interval time.Duration) {
 func MachineId(appID string) string {
 	m, e := machineid.ProtectedID(appID)
 	if e != nil {
-		Fatal(e)
+		Fatal(fmt.Errorf("unable to generate machine id: %s", e))
 	}
 	return m
 }
@@ -41,7 +42,7 @@ func GetExternalIP() (string, error) {
 }
 
 func Fatal(e error) {
-	println(e)
+	println(e.Error())
 	os.Exit(1)
 }
 
