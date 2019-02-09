@@ -18,7 +18,7 @@ public interface Agent {
 
   int streamPort();
 
-  int metaPort();
+  int sensorsPort();
 
   DateTime createdAt();
 
@@ -33,7 +33,7 @@ public interface Agent {
           .address(rs.getString("address"))
           .webPort(rs.getInt("web_port"))
           .streamPort(rs.getInt("stream_port"))
-          .metaPort(rs.getInt("meta_port"))
+          .sensorsPort(rs.getInt("sensors_port"))
           .createdAt(new DateTime(rs.getTimestamp("created_at")))
           .updatedAt(new DateTime(rs.getTimestamp("updated_at")))
           .build();

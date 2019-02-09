@@ -17,13 +17,13 @@ func SetUpConnection(address string) *grpc.ClientConn {
 	return conn
 }
 
-func BuildRequest(aID string, eIP string, pWeb uint, pStream uint, pMeta uint) *hh.CheckInRequest {
+func BuildRequest(aID string, eIP string, pWeb uint, pStream uint, pSensors uint) *hh.CheckInRequest {
 	return &hh.CheckInRequest{
-		AgentId:    aID,
-		Address:    eIP,
-		WebPort:    int32(pWeb),
-		StreamPort: int32(pStream),
-		MetaPort:   int32(pMeta),
+		AgentId:     aID,
+		Address:     eIP,
+		WebPort:     int32(pWeb),
+		StreamPort:  int32(pStream),
+		SensorsPort: int32(pSensors),
 	}
 }
 

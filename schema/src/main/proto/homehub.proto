@@ -19,8 +19,8 @@ message CheckInRequest {
   int32 webPort = 3;
   // port for video stream live feed
   int32 streamPort = 4;
-  // port for meta information (ambient temperature, humidity, cpu etc.)
-  int32 metaPort = 5;
+  // port for sensors feed (ambient temperature, humidity, cpu etc.)
+  int32 sensorsPort = 5;
 }
 
 message Ack {

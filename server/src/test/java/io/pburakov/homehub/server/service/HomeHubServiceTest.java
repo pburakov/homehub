@@ -63,7 +63,7 @@ public class HomeHubServiceTest {
     assertThat(agent.address()).isEqualTo(address);
     assertThat(agent.webPort()).isEqualTo(ports);
     assertThat(agent.streamPort()).isEqualTo(ports);
-    assertThat(agent.metaPort()).isEqualTo(ports);
+    assertThat(agent.sensorsPort()).isEqualTo(ports);
 
     // Second check-in should yield a different ack
     givenCheckInRequest(agentId, address, ports);
@@ -85,7 +85,7 @@ public class HomeHubServiceTest {
     assertThat(updatedAgent.address()).isEqualTo(newAddress);
     assertThat(updatedAgent.webPort()).isEqualTo(newPorts);
     assertThat(updatedAgent.streamPort()).isEqualTo(newPorts);
-    assertThat(updatedAgent.metaPort()).isEqualTo(newPorts);
+    assertThat(updatedAgent.sensorsPort()).isEqualTo(newPorts);
     assertThat(updatedAgent.updatedAt()).isGreaterThan(updatedAgent.createdAt());
   }
 
@@ -96,7 +96,7 @@ public class HomeHubServiceTest {
             .setAddress(address)
             .setWebPort(ports)
             .setStreamPort(ports)
-            .setMetaPort(ports)
+            .setSensorsPort(ports)
             .build(),
         this.observer);
   }

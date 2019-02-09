@@ -9,12 +9,12 @@ import org.jdbi.v3.sqlobject.transaction.Transactional;
 public interface HubDao extends Transactional<HubDao> {
 
   @SqlUpdate("insert into agents "
-      + "(agent_id, address, web_port, stream_port, meta_port) "
+      + "(agent_id, address, web_port, stream_port, sensors_port) "
       + "values (?, ?, ?, ?, ?)")
   void insert(String agentId, String address, int webPort, int streamPort, int metaPort);
 
   @SqlUpdate("update agents "
-      + "set address = ?, web_port = ?, stream_port = ?, meta_port = ? "
+      + "set address = ?, web_port = ?, stream_port = ?, sensors_port = ? "
       + "where agent_id = ?")
   void update(String address, int webPort, int streamPort, int metaPort, String agentId);
 

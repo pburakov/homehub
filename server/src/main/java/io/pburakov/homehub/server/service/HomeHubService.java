@@ -25,7 +25,7 @@ public class HomeHubService extends HomeHubGrpc.HomeHubImplBase {
         request.getAddress(),
         request.getWebPort(),
         request.getStreamPort(),
-        request.getMetaPort());
+        request.getSensorsPort());
     final Ack response = hubDao.inTransaction(txHubDao -> {
       final Ack.Builder responseBuilder = Ack.newBuilder();
       final Agent agent = txHubDao.select(agentId);
@@ -38,7 +38,7 @@ public class HomeHubService extends HomeHubGrpc.HomeHubImplBase {
               request.getAddress(),
               request.getWebPort(),
               request.getStreamPort(),
-              request.getMetaPort(),
+              request.getSensorsPort(),
               agentId);
         }
       } else {
@@ -48,7 +48,7 @@ public class HomeHubService extends HomeHubGrpc.HomeHubImplBase {
             request.getAddress(),
             request.getWebPort(),
             request.getStreamPort(),
-            request.getMetaPort());
+            request.getSensorsPort());
       }
       return responseBuilder.build();
     });
@@ -60,7 +60,7 @@ public class HomeHubService extends HomeHubGrpc.HomeHubImplBase {
     return entry.address().equals(request.getAddress())
         && entry.webPort() == request.getWebPort()
         && entry.streamPort() == request.getStreamPort()
-        && entry.metaPort() == request.getMetaPort();
+        && entry.sensorsPort() == request.getSensorsPort();
   }
 
 }
