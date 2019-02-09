@@ -28,7 +28,7 @@ $ mkdir schema
 $ protoc --go_out=plugins=grpc:schema ../schema/src/main/proto/*.proto --proto_path=../schema/src/main/proto
 ```
 
-### Build Application
+## Build Application
 
 Make sure `agent` is the PWD. 
 
@@ -38,11 +38,9 @@ To build for Raspberry Pi 3 B+, run:
 $ env GOOS=linux GOARCH=arm GOARM=7 go build
 ```
 
-Go will download required packages and install them into Go path.  
+Go will download required packages and install them into Go path. This will generate `homehub` executable. 
 
-### Run
-
-This will generate `homehub` executable. Run with:
+Run with:
 
 ```bash
 $ ./homehub
