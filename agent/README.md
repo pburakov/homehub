@@ -19,7 +19,7 @@ $ go get -u google.golang.org/grpc
 $ go get -u github.com/golang/protobuf/protoc-gen-go
 ```
 
-### Build
+### Build Proto files
 
 Make sure `agent` is the PWD:
 
@@ -28,47 +28,14 @@ $ mkdir schema
 $ protoc --go_out=plugins=grpc:schema ../schema/src/main/proto/*.proto --proto_path=../schema/src/main/proto
 ```
 
-## Generating proto sources (Raspbian Linux)
+### Build Application
 
-Instructions for Raspbian Linux are to be added. Until then, proto sources are included with the repo. 
+Make sure `agent` is the PWD. 
 
-## Building and running under Raspbian Linux
-
-### Prerequisites
-
-- Go 1.11.4+
-- ffmpeg
-
-Download and unpack latest Go version:
+To build for Raspberry Pi 3 B+, run: 
 
 ```bash
-$ wget https://storage.googleapis.com/golang/go1.11.4.linux-armv6l.tar.gz
-$ sudo tar -C /usr/local -xvf go1.11.4.linux-armv6l.tar.gz
-```
-
-Verify installed version (should match 1.11.4):
-
-```bash
-$ go version
-```
-
-Define `GOPATH` and path to Go binaries:
-
-```bash
-$ cat >> ~/.bashrc << 'EOF'
-  export GOPATH=$HOME/go
-  export PATH=/usr/local/go/bin:$PATH:$GOPATH/bin
-  EOF
-```
-
-Use `apt-get` to install `ffmpeg` package (`sudo apt-get install ffmpeg`).
-
-### Build
-
-Make sure `agent` is the PWD:
-
-```bash
-$ go build
+$ env GOOS=linux GOARCH=arm GOARM=7 go build
 ```
 
 Go will download required packages and install them into Go path.  
