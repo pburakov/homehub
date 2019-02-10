@@ -8,8 +8,8 @@ import io.grpc.protobuf.services.ProtoReflectionService;
 import io.pburakov.homehub.server.service.HomeHubService;
 import io.pburakov.homehub.server.storage.dao.HubDao;
 import java.io.IOException;
-import java.util.Properties;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.pmw.tinylog.Logger;
 
@@ -40,10 +40,9 @@ public class Main {
   }
 
   private static Jdbi initDb() {
-    final Properties properties = new Properties();
-    properties.setProperty("user", "root");
-    final Jdbi jdbi = Jdbi.create("jdbc:mysql://localhost:3306/homehub", properties);
-    jdbi.installPlugin(new SqlObjectPlugin());
+    final Jdbi jdbi = Jdbi.create("jdbc:h2:file:./homehub")
+        .installPlugin(new SqlObjectPlugin())
+        .installPlugin(new H2DatabasePlugin());
 
     initSchema(jdbi);
 

@@ -10,17 +10,18 @@ import io.pburakov.homehub.schema.CheckInRequest;
 import io.pburakov.homehub.schema.Result;
 import io.pburakov.homehub.server.storage.dao.HubDao;
 import io.pburakov.homehub.server.storage.model.Agent;
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.testcontainers.containers.MySQLContainer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HomeHubServiceTest {
@@ -28,24 +29,28 @@ public class HomeHubServiceTest {
   @Mock
   private StreamObserver<Ack> observer;
 
-  @ClassRule
-  public static MySQLContainer mysql = new MySQLContainer();
-
   private HomeHubService homeHubService;
   private HubDao hubDao;
 
   @Before
   public void setup() throws IOException {
     final Properties p = new Properties();
-    p.setProperty("user", mysql.getUsername());
-    p.setProperty("password", mysql.getPassword());
-    final Jdbi jdbi = Jdbi.create(mysql.getJdbcUrl(), p);
-    jdbi.installPlugin(new SqlObjectPlugin());
+    final Jdbi jdbi = Jdbi.create("jdbc:h2:file:./test")
+        .installPlugin(new SqlObjectPlugin())
+        .installPlugin(new H2DatabasePlugin());
 
     initSchema(jdbi);
 
     hubDao = jdbi.onDemand(HubDao.class);
     homeHubService = new HomeHubService(hubDao);
+  }
+
+  @After
+  public void destroy() {
+    final File file = new File("test.mv.db");
+    if (!file.delete()) {
+      throw new RuntimeException("Unable to cleanup test db file");
+    }
   }
 
   @Test

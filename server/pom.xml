@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>server</artifactId>
@@ -14,6 +14,10 @@
     <artifactId>homehub-root</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
+
+  <properties>
+    <serverMainClass>io.pburakov.homehub.server.Main</serverMainClass>
+  </properties>
 
   <dependencyManagement>
     <dependencies>
@@ -61,9 +65,9 @@
       <artifactId>jdbi3-sqlobject</artifactId>
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.13</version>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.4.196</version>
     </dependency>
 
     <!--Data Types-->
@@ -98,51 +102,51 @@
       <version>2.7.5</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>mysql</artifactId>
-      <version>1.7.3</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>2.0.0</version>
         <executions>
           <execution>
-            <id>copy-dependencies</id>
             <phase>package</phase>
             <goals>
-              <goal>copy-dependencies</goal>
+              <goal>assemble</goal>
             </goals>
-            <configuration>
-              <includeScope>runtime</includeScope>
-              <outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory>
-            </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.1.0</version>
         <configuration>
-          <archive>
-            <manifest>
+          <assembleDirectory>${project.build.directory}/app</assembleDirectory>
+          <programs>
+            <program>
               <mainClass>${serverMainClass}</mainClass>
-            </manifest>
-          </archive>
+              <id>server</id>
+            </program>
+          </programs>
+          <extraJvmArguments>
+            -Dtinylog.format='{level}: {message}'
+          </extraJvmArguments>
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.6.0</version>
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+        <version>1.4.10</version>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>build</goal>
+              <goal>push</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
-          <mainClass>${serverMainClass}</mainClass>
+          <repository>gcr.io/pburakov-io/homehub-server</repository>
+          <tag>${project.version}</tag>
         </configuration>
       </plugin>
     </plugins>

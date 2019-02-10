@@ -14,7 +14,7 @@ public interface HubDao extends Transactional<HubDao> {
   void insert(String agentId, String address, int webPort, int streamPort, int metaPort);
 
   @SqlUpdate("update agents "
-      + "set address = ?, web_port = ?, stream_port = ?, sensors_port = ? "
+      + "set address = ?, web_port = ?, stream_port = ?, sensors_port = ?, updated_at = now() "
       + "where agent_id = ?")
   void update(String address, int webPort, int streamPort, int metaPort, String agentId);
 

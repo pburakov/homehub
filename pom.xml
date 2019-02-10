@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.pburakov.homehub</groupId>
@@ -17,7 +17,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <serverMainClass>io.pburakov.homehub.server.Main</serverMainClass>
 
     <!--versions-->
     <jdk.version>1.8</jdk.version>
@@ -65,20 +64,6 @@
         <configuration>
           <source>${jdk.version}</source>
           <target>${jdk.version}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>appassembler-maven-plugin</artifactId>
-        <version>2.0.0</version>
-        <configuration>
-          <assembleDirectory>${project.build.directory}/app</assembleDirectory>
-          <programs>
-            <program>
-              <mainClass>${serverMainClass}</mainClass>
-              <id>server</id>
-            </program>
-          </programs>
         </configuration>
       </plugin>
     </plugins>
