@@ -2,15 +2,14 @@ package main
 
 import (
 	"flag"
-	"github.com/pburakov/homehub/conf"
-	"github.com/pburakov/homehub/rpc"
-	hh "github.com/pburakov/homehub/schema"
-	"github.com/pburakov/homehub/util"
+	"io.pburakov/homehub/agent/rpc"
+	hh "io.pburakov/homehub/agent/schema"
+	"io.pburakov/homehub/agent/util"
 	"log"
 )
 
 func main() {
-	config := conf.Init()
+	config := util.InitConfig()
 
 	// Get flags from command line
 	fRemote := flag.String("r", config.RemoteHubAddress, "Remote hub server address (including port)")
@@ -20,7 +19,7 @@ func main() {
 	flag.Parse()
 
 	// Prepare motion startup
-	conf.DumpMotionConf(&config.Motion)
+	util.DumpMotionConf(&config.Motion)
 
 	// Create RPC connection and schedule RPC check-in
 	conn := rpc.SetUpConnection(*fRemote)

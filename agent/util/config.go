@@ -1,9 +1,8 @@
-package conf
+package util
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pburakov/homehub/util"
 	"io/ioutil"
 	"os"
 	"text/template"
@@ -41,23 +40,23 @@ type Configuration struct {
 	ConnectionTimeout time.Duration `json:"connection_timeout_seconds"`
 }
 
-func Init() *Configuration {
+func InitConfig() *Configuration {
 	f, e := os.Open(agentConfFile)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error loading configuration from %s: %s", agentConfFile, e))
+		Fatal(fmt.Errorf("error loading configuration from %s: %s", agentConfFile, e))
 	}
 	defer f.Close()
 	b, e := ioutil.ReadAll(f)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error reading configuration file: %s", e))
+		Fatal(fmt.Errorf("error reading configuration file: %s", e))
 	}
 	c := new(Configuration)
 	if e := json.Unmarshal(b, c); e != nil {
-		util.Fatal(fmt.Errorf("invalid configuration file: %s", e))
+		Fatal(fmt.Errorf("invalid configuration file: %s", e))
 	}
 
 	// Populate auto-generated fields and convert durations
-	c.AgentId = util.MustGetMachineId(AppID)
+	c.AgentId = MustGetMachineId(AppID)
 	c.CheckInInterval = c.CheckInInterval * time.Second
 	c.ConnectionTimeout = c.ConnectionTimeout * time.Second
 
@@ -67,14 +66,14 @@ func Init() *Configuration {
 func DumpMotionConf(m *Motion) {
 	f, e := template.ParseFiles(motionConfTemplate)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error reading motion config template: %s", e))
+		Fatal(fmt.Errorf("error reading motion config template: %s", e))
 	}
 	w, e := os.Create(motionConfFile)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error creating motion config: %s", e))
+		Fatal(fmt.Errorf("error creating motion config: %s", e))
 	}
 	e = f.Execute(w, m)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error writing motion config: %s", e))
+		Fatal(fmt.Errorf("error writing motion config: %s", e))
 	}
 }

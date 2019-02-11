@@ -2,8 +2,8 @@ package rpc
 
 import (
 	"context"
-	hh "github.com/pburakov/homehub/schema"
 	"google.golang.org/grpc"
+	hh "io.pburakov/homehub/agent/schema"
 	"log"
 	"time"
 )

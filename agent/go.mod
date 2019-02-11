@@ -1,4 +1,4 @@
-module github.com/pburakov/homehub
+module io.pburakov/homehub/agent
 
 require (
 	github.com/denisbrodbeck/machineid v1.0.0

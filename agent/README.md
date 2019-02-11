@@ -28,6 +28,8 @@ $ mkdir schema
 $ protoc --go_out=plugins=grpc:schema ../schema/src/main/proto/*.proto --proto_path=../schema/src/main/proto
 ```
 
+Instructions for Raspbian Linux are to be added. Until then, proto sources are included with the repo. 
+
 ## Build Application (macOS)
 
 Make sure `agent` is the PWD. 
@@ -38,15 +40,15 @@ To build for Raspberry Pi 3 B+, run:
 $ env GOOS=linux GOARCH=arm GOARM=7 go build
 ```
 
-Go will download required packages and install them into Go path. This will generate `homehub` executable. 
+Go will download required packages and install them into Go path. This will generate `agent` executable. 
 
 Run with:
 
 ```bash
-$ ./homehub
-``` 
+$ ./agent
+```
 
-Instructions for Raspbian Linux are to be added. Until then, proto sources are included with the repo. 
+Distribution package consists of generated `agent` executable and `conf` directory.
 
 ## Build Application (Raspbian Linux)
 
@@ -83,8 +85,8 @@ Make sure `agent` is the PWD. To build under Raspbian environment, simply run:
 $ go build
 ```
 
-Run with:
+Run binary with:
 
 ```bash
-$ ./homehub
+$ ./agent
 ``` 

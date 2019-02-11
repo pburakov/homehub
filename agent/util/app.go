@@ -5,20 +5,7 @@ import (
 	"github.com/denisbrodbeck/machineid"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"time"
 )
-
-// Schedule initiates action and then repeat with intervals
-func Schedule(action func(), interval time.Duration) {
-	action()
-	ticker := time.NewTicker(interval)
-	go func() {
-		for range ticker.C {
-			action()
-		}
-	}()
-}
 
 func MustGetMachineId(appID string) string {
 	m, e := machineid.ProtectedID(appID)
@@ -39,13 +26,4 @@ func GetExternalIP() (string, error) {
 		return "unknown", e
 	}
 	return string(ip), nil
-}
-
-func Fatal(e error) {
-	println(e.Error())
-	os.Exit(1)
-}
-
-func Wait() {
-	select {}
 }
