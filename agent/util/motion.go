@@ -16,24 +16,17 @@ func StartMotionAndKeepAlive(m *Motion) {
 	if e != nil {
 		Fatal(fmt.Errorf("error starting motion: %s", e))
 	}
-	pid := c.Process.Pid
-	log.Printf("Motion started with pid %d", pid)
-	ticker := time.NewTicker(m.KeepAliveInterval)
-	for range ticker.C {
-		p, e := os.FindProcess(pid)
-		if e != nil {
-			log.Print("Unable to find process associated with motion")
-			go StartMotionAndKeepAlive(m)
-			return
-		}
-		s, e := p.Wait()
-		if e != nil {
-			log.Print("Error sending syscall to motion process")
-			go StartMotionAndKeepAlive(m)
-			return
-		}
+	log.Printf("Motion started with pid %d", c.Process.Pid)
+	s, e := c.Process.Wait() // will block here until the process terminates
+	if e == nil {
 		log.Printf("Motion terminated with %s", s)
+	} else {
+		log.Printf("Error polling motion process: %s", e)
 	}
+	log.Printf("Will restart motion in %s...", m.KeepAliveInterval)
+	time.Sleep(m.KeepAliveInterval)
+	go StartMotionAndKeepAlive(m)
+	return
 }
 
 // MustDumpMotionConf generates motion.conf file and returns its path.
