@@ -24,6 +24,7 @@ type Motion struct {
 	Port     uint
 	Username string
 	Password string
+	Dir      string
 }
 
 type Sensors struct {
@@ -40,6 +41,7 @@ type Configuration struct {
 	ConnectionTimeout time.Duration `json:"connection_timeout_seconds"`
 }
 
+// InitConfig initializes program configuration
 func InitConfig() *Configuration {
 	f, e := os.Open(agentConfFile)
 	if e != nil {
@@ -59,6 +61,7 @@ func InitConfig() *Configuration {
 	c.AgentId = MustGetMachineId(AppID)
 	c.CheckInInterval = c.CheckInInterval * time.Second
 	c.ConnectionTimeout = c.ConnectionTimeout * time.Second
+	c.Motion.Dir = MustCreateMotionDir()
 
 	return c
 }

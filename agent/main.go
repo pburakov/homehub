@@ -20,6 +20,7 @@ func main() {
 
 	// Prepare motion startup
 	util.DumpMotionConf(&config.Motion)
+	go util.StartMotion()
 
 	// Create RPC connection and schedule RPC check-in
 	conn := rpc.SetUpConnection(*fRemote)
