@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Schedule initiates action and then schedules repeats with intervals
+// Schedule initiates action and then repeats with intervals
 func Schedule(action func(), interval time.Duration) {
 	action()
 	ticker := time.NewTicker(interval)

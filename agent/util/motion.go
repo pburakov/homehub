@@ -6,17 +6,26 @@ import (
 	"os"
 	"os/exec"
 	"text/template"
+	"time"
 )
 
-func StartMotion(m *Motion) {
-	config := MustDumpMotionConf(m)
-	c := exec.Command("motion", "-c", config)
+func StartMotionAndKeepAlive(m *Motion) {
+	c := exec.Command("motion", "-c", m.ConfPath)
 	e := c.Start()
 	if e != nil {
 		Fatal(fmt.Errorf("error starting motion: %s", e))
 	}
-	log.Printf("Motion started with pid %d", c.Process.Pid)
-	log.Printf("Motion status is %s", c.ProcessState.String())
+	pid := c.Process.Pid
+	log.Printf("Motion started with pid %d", pid)
+	ticker := time.NewTicker(m.KeepAliveInterval)
+	for range ticker.C {
+		_, e := os.FindProcess(pid)
+		if e != nil {
+			log.Print("Motion appears to be down")
+			go StartMotionAndKeepAlive(m)
+			return
+		}
+	}
 }
 
 // MustDumpMotionConf generates motion.conf file and returns its path.

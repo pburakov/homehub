@@ -5,7 +5,8 @@
   "motion": {
     "port": 31333,
     "username": "raccoon",
-    "password": "cat"
+    "password": "cat",
+    "keepalive_ping_interval_seconds": 5
   },
   "sensors": {
     "port": 31334

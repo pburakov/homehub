@@ -20,10 +20,15 @@ type WebServer struct {
 }
 
 type Motion struct {
+	// These values are used in motion.conf template
 	Port     uint
 	Username string
 	Password string
 	Dir      string
+
+	// These values are used by runtime
+	ConfPath          string
+	KeepAliveInterval time.Duration `json:"keepalive_ping_interval_seconds"`
 }
 
 type Sensors struct {
@@ -59,6 +64,8 @@ func InitConfig() *Configuration {
 
 	// Prepare directories, populate auto-generated fields and convert durations
 	c.Motion.Dir = MustCreateMotionDir()
+	c.Motion.ConfPath = MustDumpMotionConf(&c.Motion)
+	c.Motion.KeepAliveInterval = c.Motion.KeepAliveInterval * time.Second
 	c.AgentId = MustGetMachineId(AppID)
 	c.CheckInInterval = c.CheckInInterval * time.Second
 	c.ConnectionTimeout = c.ConnectionTimeout * time.Second
