@@ -12,6 +12,6 @@
     "port": 31334
   },
   "remote_hub_address": "localhost:31321",
-  "check_in_interval_seconds": 10,
+  "check_in_interval_seconds": 60,
   "connection_timeout_seconds": 2
 }
