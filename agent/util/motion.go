@@ -19,12 +19,19 @@ func StartMotionAndKeepAlive(m *Motion) {
 	log.Printf("Motion started with pid %d", pid)
 	ticker := time.NewTicker(m.KeepAliveInterval)
 	for range ticker.C {
-		_, e := os.FindProcess(pid)
+		p, e := os.FindProcess(pid)
 		if e != nil {
 			log.Print("Motion appears to be down")
 			go StartMotionAndKeepAlive(m)
 			return
 		}
+		s, e := p.Wait()
+		if e != nil {
+			log.Print("Motion appears to be down")
+			go StartMotionAndKeepAlive(m)
+			return
+		}
+		log.Printf("Motion state is %q", s)
 	}
 }
 

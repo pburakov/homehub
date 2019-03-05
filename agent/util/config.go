@@ -76,7 +76,7 @@ func InitConfig() *Configuration {
 func MustCreateMotionDir() string {
 	d := MustGetCWD()
 	md := d + "/motion"
-	e := os.Mkdir(md, 0766)
+	e := os.Mkdir(md, 0666)
 	if e != nil && !os.IsExist(e) {
 		Fatal(fmt.Errorf("unable to create dir for motion output: %s", e))
 	}
