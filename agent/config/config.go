@@ -1,18 +1,21 @@
-package util
+package config
 
 import (
 	"encoding/json"
 	"fmt"
+	"io.pburakov/homehub/agent/util"
 	"io/ioutil"
 	"os"
+	"text/template"
 	"time"
 )
 
 const (
 	AppID              = "homehub"
-	agentConfFile      = "conf/agent.json"
-	motionConfTemplate = "conf/motion.template"
-	motionConfFile     = "motion.conf"
+	agentConfFile      = ".conf/agent.json"
+	motionConfTemplate = ".conf/motion.template"
+	motionConfFileName = "motion.conf"
+	motionTargetDir    = ".motion"
 )
 
 type WebServer struct {
@@ -50,23 +53,23 @@ type Configuration struct {
 func InitConfig() *Configuration {
 	f, e := os.Open(agentConfFile)
 	if e != nil {
-		Fatal(fmt.Errorf("error loading configuration from %s: %s", agentConfFile, e))
+		util.Fatal(fmt.Errorf("error loading configuration from %s: %s", agentConfFile, e))
 	}
 	defer f.Close()
 	b, e := ioutil.ReadAll(f)
 	if e != nil {
-		Fatal(fmt.Errorf("error reading configuration file: %s", e))
+		util.Fatal(fmt.Errorf("error reading configuration file: %s", e))
 	}
 	c := new(Configuration)
 	if e := json.Unmarshal(b, c); e != nil {
-		Fatal(fmt.Errorf("invalid configuration file: %s", e))
+		util.Fatal(fmt.Errorf("invalid configuration file: %s", e))
 	}
 
 	// Prepare directories, populate auto-generated fields and convert durations
 	c.Motion.Dir = MustCreateMotionDir()
 	c.Motion.ConfPath = MustDumpMotionConf(&c.Motion)
 	c.Motion.KeepAliveInterval = c.Motion.KeepAliveInterval * time.Second
-	c.AgentId = MustGetMachineId(AppID)
+	c.AgentId = util.MustGetMachineId(AppID)
 	c.CheckInInterval = c.CheckInInterval * time.Second
 	c.ConnectionTimeout = c.ConnectionTimeout * time.Second
 
@@ -74,11 +77,29 @@ func InitConfig() *Configuration {
 }
 
 func MustCreateMotionDir() string {
-	d := MustGetCWD()
-	md := d + "/motion"
+	d := util.MustGetCWD()
+	md := d + "/" + motionTargetDir
 	e := os.Mkdir(md, 0766)
 	if e != nil && !os.IsExist(e) {
-		Fatal(fmt.Errorf("unable to create dir for motion output: %s", e))
+		util.Fatal(fmt.Errorf("unable to create dir for motion output: %s", e))
 	}
 	return md
+}
+
+// MustDumpMotionConf generates motion.conf file and returns its path.
+func MustDumpMotionConf(m *Motion) string {
+	p := m.Dir + "/" + motionConfFileName
+	f, e := template.ParseFiles(motionConfTemplate)
+	if e != nil {
+		util.Fatal(fmt.Errorf("error reading motion config template: %s", e))
+	}
+	w, e := os.Create(p)
+	if e != nil {
+		util.Fatal(fmt.Errorf("error creating motion config: %s", e))
+	}
+	e = f.Execute(w, m)
+	if e != nil {
+		util.Fatal(fmt.Errorf("error writing motion config: %s", e))
+	}
+	return p
 }
