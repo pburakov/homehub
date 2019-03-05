@@ -18,9 +18,8 @@ func main() {
 	fMotionPort := flag.Uint("ps", config.Motion.Port, "Local streaming port to bind")
 	flag.Parse()
 
-	// Prepare motion startup
-	util.DumpMotionConf(&config.Motion)
-	go util.StartMotion()
+	// Initiate motion startup
+	go util.StartMotion(&config.Motion)
 
 	// Create RPC connection and schedule RPC check-in
 	conn := rpc.SetUpConnection(*fRemote)

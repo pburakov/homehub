@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"os"
 	"time"
 )
@@ -23,4 +24,12 @@ func Fatal(e error) {
 
 func Wait() {
 	select {}
+}
+
+func MustGetCWD() string {
+	d, e := os.Getwd()
+	if e != nil {
+		Fatal(fmt.Errorf("error getting current working directory: %s", e))
+	}
+	return d
 }

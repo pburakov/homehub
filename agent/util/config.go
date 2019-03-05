@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"text/template"
 	"time"
 )
 
 const (
 	AppID              = "homehub"
 	agentConfFile      = "conf/agent.json"
-	motionConfFile     = "motion.conf"
 	motionConfTemplate = "conf/motion.template"
+	motionConfFile     = "motion.conf"
 )
 
 type WebServer struct {
@@ -35,6 +34,7 @@ type Configuration struct {
 	AgentId           string
 	Motion            Motion
 	Sensors           Sensors
+	CWD               string
 	WebServer         WebServer     `json:"web_server"`
 	RemoteHubAddress  string        `json:"remote_hub_address"`
 	CheckInInterval   time.Duration `json:"check_in_interval_seconds"`
@@ -57,26 +57,21 @@ func InitConfig() *Configuration {
 		Fatal(fmt.Errorf("invalid configuration file: %s", e))
 	}
 
-	// Populate auto-generated fields and convert durations
+	// Prepare directories, populate auto-generated fields and convert durations
+	c.Motion.Dir = MustCreateMotionDir()
 	c.AgentId = MustGetMachineId(AppID)
 	c.CheckInInterval = c.CheckInInterval * time.Second
 	c.ConnectionTimeout = c.ConnectionTimeout * time.Second
-	c.Motion.Dir = MustCreateMotionDir()
 
 	return c
 }
 
-func DumpMotionConf(m *Motion) {
-	f, e := template.ParseFiles(motionConfTemplate)
-	if e != nil {
-		Fatal(fmt.Errorf("error reading motion config template: %s", e))
+func MustCreateMotionDir() string {
+	d := MustGetCWD()
+	md := d + "/motion"
+	e := os.Mkdir(md, 0666)
+	if e != nil && !os.IsExist(e) {
+		Fatal(fmt.Errorf("unable to create dir for motion output: %s", e))
 	}
-	w, e := os.Create(motionConfFile)
-	if e != nil {
-		Fatal(fmt.Errorf("error creating motion config: %s", e))
-	}
-	e = f.Execute(w, m)
-	if e != nil {
-		Fatal(fmt.Errorf("error writing motion config: %s", e))
-	}
+	return md
 }
