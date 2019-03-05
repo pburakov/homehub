@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"io.pburakov/homehub/agent/config"
+	"io.pburakov/homehub/agent/http"
 	"io.pburakov/homehub/agent/motion"
 	"io.pburakov/homehub/agent/rpc"
 	hh "io.pburakov/homehub/agent/schema"
@@ -22,6 +23,9 @@ func main() {
 
 	// Start motion detection and video-streaming process
 	go motion.StartMotionAndKeepAlive(&c.Motion)
+
+	// Start serving files from motion-detector output
+	go http.ServeFolder(c)
 
 	// Create RPC connection and schedule RPC check-in
 	conn := rpc.SetUpConnection(*fRemote)
