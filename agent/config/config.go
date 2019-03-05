@@ -88,7 +88,7 @@ func MustCreateMotionDir() string {
 
 // MustDumpMotionConf generates motion.conf file and returns its path.
 func MustDumpMotionConf(m *Motion) string {
-	p := m.Dir + "/" + motionConfFileName
+	p := util.MustGetCWD() + "/" + motionConfFileName
 	f, e := template.ParseFiles(motionConfTemplate)
 	if e != nil {
 		util.Fatal(fmt.Errorf("error reading motion config template: %s", e))
