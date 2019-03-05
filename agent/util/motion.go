@@ -10,6 +10,7 @@ import (
 )
 
 func StartMotionAndKeepAlive(m *Motion) {
+	log.Print("Starting motion")
 	c := exec.Command("motion", "-c", m.ConfPath)
 	e := c.Start()
 	if e != nil {
@@ -21,17 +22,17 @@ func StartMotionAndKeepAlive(m *Motion) {
 	for range ticker.C {
 		p, e := os.FindProcess(pid)
 		if e != nil {
-			log.Print("Motion appears to be down")
+			log.Print("Unable to find process associated with motion")
 			go StartMotionAndKeepAlive(m)
 			return
 		}
 		s, e := p.Wait()
 		if e != nil {
-			log.Print("Motion appears to be down")
+			log.Print("Error sending syscall to motion process")
 			go StartMotionAndKeepAlive(m)
 			return
 		}
-		log.Printf("Motion state is %q", s)
+		log.Printf("Motion terminated with %s", s)
 	}
 }
 
