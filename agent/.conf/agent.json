@@ -1,0 +1,19 @@
+{
+  "web_server": {
+    "port": 31322,
+    "username": "raccoon",
+    "password": "cat"
+  },
+  "motion": {
+    "port": 31333,
+    "username": "raccoon",
+    "password": "cat",
+    "keepalive_ping_interval_seconds": 5
+  },
+  "sensors": {
+    "port": 31334
+  },
+  "remote_hub_address": "localhost:31321",
+  "check_in_interval_seconds": 60,
+  "connection_timeout_seconds": 2
+}
