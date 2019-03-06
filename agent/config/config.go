@@ -19,7 +19,9 @@ const (
 )
 
 type WebServer struct {
-	Port uint
+	Port     uint
+	Username string
+	Password string
 }
 
 type Motion struct {

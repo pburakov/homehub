@@ -1,6 +1,8 @@
 {
   "web_server": {
-    "port": 31322
+    "port": 31322,
+    "username": "raccoon",
+    "password": "cat"
   },
   "motion": {
     "port": 31333,
