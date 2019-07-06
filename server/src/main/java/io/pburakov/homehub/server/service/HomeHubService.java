@@ -20,38 +20,41 @@ public class HomeHubService extends HomeHubGrpc.HomeHubImplBase {
   @Override
   public void checkIn(CheckInRequest request, StreamObserver<Ack> responseObserver) {
     final String agentId = request.getAgentId();
-    Logger.info("Received check-in from agent '{}' reporting address '{}' and ports {}, {}, {}",
+    Logger.info(
+        "Received check-in from agent '{}' reporting address '{}' and ports {}, {}, {}",
         agentId.length() > 8 ? agentId.substring(0, 8).concat("...") : agentId,
         request.getAddress(),
         request.getWebPort(),
         request.getStreamPort(),
         request.getSensorsPort());
-    final Ack response = hubDao.inTransaction(txHubDao -> {
-      final Ack.Builder responseBuilder = Ack.newBuilder();
-      final Agent agent = txHubDao.select(agentId);
-      if (agent != null) {
-        if (equal(request, agent)) {
-          responseBuilder.setResult(Result.RECEIVED_UNCHANGED);
-        } else {
-          responseBuilder.setResult(Result.RECEIVED_UPDATED);
-          txHubDao.update(
-              request.getAddress(),
-              request.getWebPort(),
-              request.getStreamPort(),
-              request.getSensorsPort(),
-              agentId);
-        }
-      } else {
-        responseBuilder.setResult(Result.RECEIVED_NEW);
-        txHubDao.insert(
-            agentId,
-            request.getAddress(),
-            request.getWebPort(),
-            request.getStreamPort(),
-            request.getSensorsPort());
-      }
-      return responseBuilder.build();
-    });
+    final Ack response =
+        hubDao.inTransaction(
+            txHubDao -> {
+              final Ack.Builder responseBuilder = Ack.newBuilder();
+              final Agent agent = txHubDao.select(agentId);
+              if (agent != null) {
+                if (equal(request, agent)) {
+                  responseBuilder.setResult(Result.RECEIVED_UNCHANGED);
+                } else {
+                  responseBuilder.setResult(Result.RECEIVED_UPDATED);
+                  txHubDao.update(
+                      request.getAddress(),
+                      request.getWebPort(),
+                      request.getStreamPort(),
+                      request.getSensorsPort(),
+                      agentId);
+                }
+              } else {
+                responseBuilder.setResult(Result.RECEIVED_NEW);
+                txHubDao.insert(
+                    agentId,
+                    request.getAddress(),
+                    request.getWebPort(),
+                    request.getStreamPort(),
+                    request.getSensorsPort());
+              }
+              return responseBuilder.build();
+            });
     responseObserver.onNext(response);
     responseObserver.onCompleted();
   }
@@ -62,5 +65,4 @@ public class HomeHubService extends HomeHubGrpc.HomeHubImplBase {
         && entry.streamPort() == request.getStreamPort()
         && entry.sensorsPort() == request.getSensorsPort();
   }
-
 }
