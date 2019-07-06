@@ -2,11 +2,13 @@ package io.pburakov.homehub.server.service;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.pburakov.homehub.server.util.SchemaUtil.initSchema;
-import static org.mockito.Mockito.verify;
 
-import io.grpc.stub.StreamObserver;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.testing.GrpcCleanupRule;
 import io.pburakov.homehub.schema.Ack;
 import io.pburakov.homehub.schema.CheckInRequest;
+import io.pburakov.homehub.schema.HomeHubGrpc;
 import io.pburakov.homehub.schema.Result;
 import io.pburakov.homehub.server.storage.dao.HubDao;
 import io.pburakov.homehub.server.storage.model.Agent;
@@ -18,31 +20,39 @@ import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 public class HomeHubServiceTest {
 
-  @Mock
-  private StreamObserver<Ack> observer;
+  @Rule public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
-  private HomeHubService homeHubService;
+  private static final String SERVER_NAME = "test-server";
+
+  private HomeHubGrpc.HomeHubBlockingStub homeHubService;
   private HubDao hubDao;
 
   @Before
   public void setup() throws IOException {
     final Properties p = new Properties();
-    final Jdbi jdbi = Jdbi.create("jdbc:h2:file:./test")
-        .installPlugin(new SqlObjectPlugin())
-        .installPlugin(new H2DatabasePlugin());
+    final Jdbi jdbi =
+        Jdbi.create("jdbc:h2:file:./test")
+            .installPlugin(new SqlObjectPlugin())
+            .installPlugin(new H2DatabasePlugin());
 
     initSchema(jdbi);
 
     hubDao = jdbi.onDemand(HubDao.class);
-    homeHubService = new HomeHubService(hubDao);
+    grpcCleanup.register(
+        InProcessServerBuilder.forName(SERVER_NAME)
+            .directExecutor()
+            .addService(new HomeHubService(hubDao))
+            .build()
+            .start());
+    homeHubService =
+        HomeHubGrpc.newBlockingStub(
+            grpcCleanup.register(
+                InProcessChannelBuilder.forName(SERVER_NAME).directExecutor().build()));
   }
 
   @After
@@ -59,8 +69,8 @@ public class HomeHubServiceTest {
     String address = "test123";
     int ports = 4242;
 
-    givenCheckInRequest(agentId, address, ports);
-    verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_NEW).build());
+    Ack response1 = givenCheckInRequest(agentId, address, ports);
+    assertThat(response1).isEqualTo(Ack.newBuilder().setResult(Result.RECEIVED_NEW).build());
 
     // Verify record is stored
     Agent agent = hubDao.select(agentId);
@@ -71,8 +81,8 @@ public class HomeHubServiceTest {
     assertThat(agent.sensorsPort()).isEqualTo(ports);
 
     // Second check-in should yield a different ack
-    givenCheckInRequest(agentId, address, ports);
-    verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_UNCHANGED).build());
+    Ack response2 = givenCheckInRequest(agentId, address, ports);
+    assertThat(response2).isEqualTo(Ack.newBuilder().setResult(Result.RECEIVED_UNCHANGED).build());
 
     // Check-in with new address should yield a different ack
     String newAddress = "newAddress";
@@ -81,8 +91,8 @@ public class HomeHubServiceTest {
     // Wait at least 1s to make sure timestamp is updated
     Thread.sleep(1000);
 
-    givenCheckInRequest(agentId, newAddress, newPorts);
-    verify(observer).onNext(Ack.newBuilder().setResult(Result.RECEIVED_UPDATED).build());
+    Ack response3 = givenCheckInRequest(agentId, newAddress, newPorts);
+    assertThat(response3).isEqualTo(Ack.newBuilder().setResult(Result.RECEIVED_UPDATED).build());
 
     // Updated address and port should be stored
     Agent updatedAgent = hubDao.select(agentId);
@@ -94,16 +104,14 @@ public class HomeHubServiceTest {
     assertThat(updatedAgent.updatedAt()).isGreaterThan(updatedAgent.createdAt());
   }
 
-  private void givenCheckInRequest(String agentId, String address, int ports) {
-    this.homeHubService.checkIn(
+  private Ack givenCheckInRequest(String agentId, String address, int ports) {
+    return this.homeHubService.checkIn(
         CheckInRequest.newBuilder()
             .setAgentId(agentId)
             .setAddress(address)
             .setWebPort(ports)
             .setStreamPort(ports)
             .setSensorsPort(ports)
-            .build(),
-        this.observer);
+            .build());
   }
-
 }

@@ -1,5 +1,3 @@
 package io.pburakov.homehub.server.storage.dao;
 
-public class HubDaoTest {
-
-}
+public class HubDaoTest {}

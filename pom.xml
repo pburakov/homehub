@@ -19,13 +19,25 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!--versions-->
-    <jdk.version>1.8</jdk.version>
-    <protobuf.version>3.6.0</protobuf.version>
-    <grpc.version>1.17.1</grpc.version>
+    <jdk.version>11</jdk.version>
+    <protobuf.version>3.8.0</protobuf.version>
+    <grpc.version>1.21.0</grpc.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
+      <!--Pin local versions-->
+      <dependency>
+        <groupId>io.pburakov.homehub</groupId>
+        <artifactId>schema</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.pburakov.homehub</groupId>
+        <artifactId>server</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <!--Shared schema generation dependencies-->
       <dependency>
         <groupId>com.google.protobuf</groupId>
@@ -52,19 +64,49 @@
         <artifactId>grpc-stub</artifactId>
         <version>${grpc.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-testing</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>1.3.2</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
   <build>
     <plugins>
       <plugin>
+        <groupId>com.coveo</groupId>
+        <artifactId>fmt-maven-plugin</artifactId>
+        <version>2.9</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
+        <version>3.8.0</version>
         <configuration>
           <source>${jdk.version}</source>
           <target>${jdk.version}</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.22.2</version>
       </plugin>
     </plugins>
   </build>

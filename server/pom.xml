@@ -16,6 +16,7 @@
   </parent>
 
   <properties>
+    <jdk.vesion>11</jdk.vesion>
     <serverMainClass>io.pburakov.homehub.server.Main</serverMainClass>
   </properties>
 
@@ -35,7 +36,6 @@
     <dependency>
       <groupId>io.pburakov.homehub</groupId>
       <artifactId>schema</artifactId>
-      <version>0.1-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -97,9 +97,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>2.7.5</version>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-testing</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

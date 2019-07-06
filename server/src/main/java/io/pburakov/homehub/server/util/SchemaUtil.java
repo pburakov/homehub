@@ -9,9 +9,7 @@ import org.pmw.tinylog.Logger;
 
 public class SchemaUtil {
 
-  private SchemaUtil() {
-
-  }
+  private SchemaUtil() {}
 
   public static void initSchema(Jdbi jdbi) {
     URL url = Resources.getResource("init.sql");
@@ -23,5 +21,4 @@ public class SchemaUtil {
       throw new RuntimeException("Error reading init SQL script", e);
     }
   }
-
 }

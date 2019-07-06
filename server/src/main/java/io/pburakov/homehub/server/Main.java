@@ -23,30 +23,34 @@ public class Main {
     final Jdbi jdbi = initDb();
     final HubDao hubDao = jdbi.onDemand(HubDao.class);
 
-    Server server = ServerBuilder.forPort(port)
-        .addService(new HomeHubService(hubDao))
-        .addService(ProtoReflectionService.newInstance())
-        .build();
+    Server server =
+        ServerBuilder.forPort(port)
+            .addService(new HomeHubService(hubDao))
+            .addService(ProtoReflectionService.newInstance())
+            .build();
 
     server.start();
     Logger.info("Server started, listening on port {}", port);
 
     server.awaitTermination();
 
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      Logger.info("Server shutdown");
-      server.shutdown();
-    }));
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  Logger.info("Server shutdown");
+                  server.shutdown();
+                }));
   }
 
   private static Jdbi initDb() {
-    final Jdbi jdbi = Jdbi.create("jdbc:h2:file:./homehub")
-        .installPlugin(new SqlObjectPlugin())
-        .installPlugin(new H2DatabasePlugin());
+    final Jdbi jdbi =
+        Jdbi.create("jdbc:h2:file:./homehub")
+            .installPlugin(new SqlObjectPlugin())
+            .installPlugin(new H2DatabasePlugin());
 
     initSchema(jdbi);
 
     return jdbi;
   }
-
 }
