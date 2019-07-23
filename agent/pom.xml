@@ -25,7 +25,7 @@
         <configuration>
           <environmentVariables>
             <GOPATH>${project.basedir}/.gopath</GOPATH>
-            <!-- Build for Rapberry Pi 3+ -->
+            <!-- Build for Raspberry Pi 3+ -->
             <GOOS>linux</GOOS>
             <GOARCH>arm</GOARCH>
             <GOARM>7</GOARM>
@@ -46,11 +46,6 @@
                 <argument>-u</argument>
                 <argument>google.golang.org/grpc</argument>
               </arguments>
-              <!-- Some packages cause go get to return failure even though dependency works -->
-              <successCodes>
-                <successCode>0</successCode>
-                <successCode>1</successCode>
-              </successCodes>
             </configuration>
           </execution>
           <execution>
@@ -66,11 +61,6 @@
                 <argument>-u</argument>
                 <argument>github.com/golang/protobuf/protoc-gen-go</argument>
               </arguments>
-              <!-- Some packages cause go get to return failure even though dependency works -->
-              <successCodes>
-                <successCode>0</successCode>
-                <successCode>1</successCode>
-              </successCodes>
             </configuration>
           </execution>
           <execution>
@@ -85,6 +75,7 @@
                 <argument>
                   ${project.basedir}/../schema/src/main/proto/homehub.proto
                 </argument>
+                <argument>--plugin=protoc-gen-go=${project.basedir}/.gopath/bin/protoc-gen-go</argument>
                 <argument>--go_out=plugins=grpc:schema</argument>
                 <argument>--proto_path=${project.basedir}/../schema/src/main/proto</argument>
               </arguments>
