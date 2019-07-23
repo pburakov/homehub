@@ -165,10 +165,10 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.directory}/dist/.conf</outputDirectory>
+              <outputDirectory>${project.build.directory}/dist/conf</outputDirectory>
               <resources>
                 <resource>
-                  <directory>src/.conf</directory>
+                  <directory>src/conf</directory>
                 </resource>
               </resources>
             </configuration>

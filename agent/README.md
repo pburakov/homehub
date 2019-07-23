@@ -40,4 +40,4 @@ mvn package
 
 Maven wil build Raspberry Pi 3 B+ build, identical to running a command `env GOOS=linux GOARCH=arm GOARM=7 go build`.
 
-Distribution package consists of generated `agent` executable and `.conf` directory, found in `target/dist` directory.
+Distribution package consists of generated `agent` executable and `conf` directory, found in `target/dist` directory.

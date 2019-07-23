@@ -12,8 +12,8 @@ import (
 
 const (
 	AppID              = "homehub"
-	agentConfFile      = ".conf/agent.json"
-	motionConfTemplate = ".conf/motion.template"
+	agentConfFile      = "conf/agent.json"
+	motionConfTemplate = "conf/motion.template"
 	motionConfFileName = "motion.conf"
 	motionTargetDir    = ".motion"
 )
