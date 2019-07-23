@@ -2,7 +2,7 @@ FROM openjdk:11-jre
 
 MAINTAINER Paul Burakov <pburakov@gmail.com>
 
-COPY target/app .
+COPY target/dist .
 
 EXPOSE 31321/tcp
 
