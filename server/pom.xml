@@ -118,7 +118,7 @@
           </execution>
         </executions>
         <configuration>
-          <assembleDirectory>${project.build.directory}/app</assembleDirectory>
+          <assembleDirectory>${project.build.directory}/dist</assembleDirectory>
           <programs>
             <program>
               <mainClass>${serverMainClass}</mainClass>
