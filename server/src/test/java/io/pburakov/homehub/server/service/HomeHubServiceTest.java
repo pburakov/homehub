@@ -3,9 +3,10 @@ package io.pburakov.homehub.server.service;
 import static com.google.common.truth.Truth.assertThat;
 import static io.pburakov.homehub.server.util.SchemaUtil.initSchema;
 
+import io.grpc.Channel;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.testing.GrpcCleanupRule;
 import io.pburakov.homehub.schema.Ack;
 import io.pburakov.homehub.schema.CheckInRequest;
 import io.pburakov.homehub.schema.HomeHubGrpc;
@@ -18,22 +19,21 @@ import java.util.Properties;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class HomeHubServiceTest {
-
-  @Rule public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
+class HomeHubServiceTest {
 
   private static final String SERVER_NAME = "test-server";
 
-  private HomeHubGrpc.HomeHubBlockingStub homeHubService;
-  private HubDao hubDao;
+  private static Channel channel;
+  private static Server server;
+  private static HomeHubGrpc.HomeHubBlockingStub homeHubService;
+  private static HubDao hubDao;
 
-  @Before
-  public void setup() throws IOException {
+  @BeforeAll
+  static void setup() throws IOException {
     final Properties p = new Properties();
     final Jdbi jdbi =
         Jdbi.create("jdbc:h2:file:./test")
@@ -43,20 +43,19 @@ public class HomeHubServiceTest {
     initSchema(jdbi);
 
     hubDao = jdbi.onDemand(HubDao.class);
-    grpcCleanup.register(
+    server =
         InProcessServerBuilder.forName(SERVER_NAME)
             .directExecutor()
             .addService(new HomeHubService(hubDao))
             .build()
-            .start());
-    homeHubService =
-        HomeHubGrpc.newBlockingStub(
-            grpcCleanup.register(
-                InProcessChannelBuilder.forName(SERVER_NAME).directExecutor().build()));
+            .start();
+    channel = InProcessChannelBuilder.forName(SERVER_NAME).directExecutor().build();
+    homeHubService = HomeHubGrpc.newBlockingStub(channel);
   }
 
-  @After
-  public void destroy() {
+  @AfterAll
+  static void destroy() {
+    server.shutdownNow();
     final File file = new File("test.mv.db");
     if (!file.delete()) {
       throw new RuntimeException("Unable to cleanup test db file");
@@ -64,7 +63,7 @@ public class HomeHubServiceTest {
   }
 
   @Test
-  public void TestCheckInFlows() throws InterruptedException {
+  void TestCheckInFlows() throws InterruptedException {
     String agentId = "testagent123";
     String address = "test123";
     int ports = 4242;
@@ -104,8 +103,8 @@ public class HomeHubServiceTest {
     assertThat(updatedAgent.updatedAt()).isGreaterThan(updatedAgent.createdAt());
   }
 
-  private Ack givenCheckInRequest(String agentId, String address, int ports) {
-    return this.homeHubService.checkIn(
+  private static Ack givenCheckInRequest(String agentId, String address, int ports) {
+    return homeHubService.checkIn(
         CheckInRequest.newBuilder()
             .setAgentId(agentId)
             .setAddress(address)
