@@ -4,7 +4,7 @@ Reports Hub status to the main server and responds to user queries.
 
 ## Prerequisites
 
-- Go 1.11.4+
+- Go 1.13
 - proto v3.6.0
 - gRPC 1.13.1
 
