@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <name>HomeHub Agent</name>
@@ -9,6 +9,14 @@
 
   <version>0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <properties>
+    <gopath>${project.basedir}/src/.go</gopath>
+    <protoSource>${project.basedir}/../schema/src/main/proto</protoSource>
+    <workingDirectory>${project.basedir}/src</workingDirectory>
+    <targetDirectory>${project.build.directory}/dist</targetDirectory>
+    <mainExecutable>cmd/main.go</mainExecutable>
+  </properties>
 
   <parent>
     <groupId>io.pburakov.homehub</groupId>
@@ -24,13 +32,9 @@
         <version>1.6.0</version>
         <configuration>
           <environmentVariables>
-            <GOPATH>${project.basedir}/.gopath</GOPATH>
-            <!-- Build for Raspberry Pi 3+ -->
-            <GOOS>linux</GOOS>
-            <GOARCH>arm</GOARCH>
-            <GOARM>7</GOARM>
+            <GOPATH>${gopath}</GOPATH>
           </environmentVariables>
-          <workingDirectory>${project.basedir}/src</workingDirectory>
+          <workingDirectory>${workingDirectory}</workingDirectory>
         </configuration>
         <executions>
           <execution>
@@ -72,25 +76,10 @@
             <configuration>
               <executable>protoc</executable>
               <arguments>
-                <argument>
-                  ${project.basedir}/../schema/src/main/proto/homehub.proto
-                </argument>
-                <argument>--plugin=protoc-gen-go=${project.basedir}/.gopath/bin/protoc-gen-go</argument>
+                <argument>${protoSource}/homehub.proto</argument>
+                <argument>--plugin=protoc-gen-go=${gopath}/bin/protoc-gen-go</argument>
                 <argument>--go_out=plugins=grpc:schema</argument>
-                <argument>--proto_path=${project.basedir}/../schema/src/main/proto</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>go-install</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>go</executable>
-              <arguments>
-                <argument>install</argument>
+                <argument>--proto_path=${protoSource}</argument>
               </arguments>
             </configuration>
           </execution>
@@ -144,11 +133,18 @@
               <goal>exec</goal>
             </goals>
             <configuration>
+              <environmentVariables>
+                <!-- Build for Raspberry Pi 3+ -->
+                <GOOS>linux</GOOS>
+                <GOARCH>arm</GOARCH>
+                <GOARM>7</GOARM>
+              </environmentVariables>
               <executable>go</executable>
               <arguments>
                 <argument>build</argument>
                 <argument>-o</argument>
-                <argument>${project.build.directory}/dist/agent</argument>
+                <argument>${targetDirectory}/agent</argument>
+                <argument>${mainExecutable}</argument>
               </arguments>
             </configuration>
           </execution>
@@ -165,7 +161,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.directory}/dist/conf</outputDirectory>
+              <outputDirectory>${targetDirectory}/conf</outputDirectory>
               <resources>
                 <resource>
                   <directory>src/conf</directory>
