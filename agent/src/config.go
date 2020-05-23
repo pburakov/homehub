@@ -24,6 +24,8 @@ type WebServer struct {
 }
 
 type Motion struct {
+	Executable string
+
 	// These values are used in motion.conf template
 	Port     uint
 	Username string

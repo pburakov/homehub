@@ -5,6 +5,7 @@
     "password": "cat"
   },
   "motion": {
+    "executable": "./motion",
     "port": 31333,
     "username": "raccoon",
     "password": "cat",

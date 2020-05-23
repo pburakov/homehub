@@ -9,7 +9,7 @@ import (
 
 func StartMotionAndKeepAlive(m *Motion) {
 	log.Printf("Starting motion with streaming on port %d", m.Port)
-	c := exec.Command("motion", "-c", m.ConfPath)
+	c := exec.Command(m.Executable, "-c", m.ConfPath)
 	e := c.Start()
 	if e != nil {
 		Fatal(fmt.Errorf("error starting motion: %s", e))
