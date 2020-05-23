@@ -1,20 +1,18 @@
-package motion
+package main
 
 import (
 	"fmt"
-	"io.pburakov/homehub/agent/config"
-	"io.pburakov/homehub/agent/util"
 	"log"
 	"os/exec"
 	"time"
 )
 
-func StartMotionAndKeepAlive(m *config.Motion) {
+func StartMotionAndKeepAlive(m *Motion) {
 	log.Printf("Starting motion with streaming on port %d", m.Port)
 	c := exec.Command("motion", "-c", m.ConfPath)
 	e := c.Start()
 	if e != nil {
-		util.Fatal(fmt.Errorf("error starting motion: %s", e))
+		Fatal(fmt.Errorf("error starting motion: %s", e))
 	}
 	log.Printf("Motion started with pid %d", c.Process.Pid)
 	s, e := c.Process.Wait() // will block here until the process terminates

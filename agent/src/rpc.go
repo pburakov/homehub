@@ -1,9 +1,8 @@
-package rpc
+package main
 
 import (
 	"context"
 	"google.golang.org/grpc"
-	hh "io.pburakov/homehub/agent/schema"
 	"log"
 	"time"
 )
@@ -17,8 +16,8 @@ func SetUpConnection(address string) *grpc.ClientConn {
 	return conn
 }
 
-func BuildRequest(aID string, eIP string, pWeb uint, pStream uint, pSensors uint) *hh.CheckInRequest {
-	return &hh.CheckInRequest{
+func BuildRequest(aID string, eIP string, pWeb uint, pStream uint, pSensors uint) *CheckInRequest {
+	return &CheckInRequest{
 		AgentId:     aID,
 		Address:     eIP,
 		WebPort:     int32(pWeb),
@@ -27,7 +26,7 @@ func BuildRequest(aID string, eIP string, pWeb uint, pStream uint, pSensors uint
 	}
 }
 
-func CheckIn(c hh.HomeHubClient, timeout time.Duration, req *hh.CheckInRequest) (*hh.Result, error) {
+func CheckIn(c HomeHubClient, timeout time.Duration, req *CheckInRequest) (*Result, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 

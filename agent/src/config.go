@@ -1,9 +1,8 @@
-package config
+package main
 
 import (
 	"encoding/json"
 	"fmt"
-	"io.pburakov/homehub/agent/util"
 	"io/ioutil"
 	"os"
 	"text/template"
@@ -55,23 +54,23 @@ type Configuration struct {
 func InitConfig() *Configuration {
 	f, e := os.Open(agentConfFile)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error loading configuration from %s: %s", agentConfFile, e))
+		Fatal(fmt.Errorf("error loading configuration from %s: %s", agentConfFile, e))
 	}
 	defer f.Close()
 	b, e := ioutil.ReadAll(f)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error reading configuration file: %s", e))
+		Fatal(fmt.Errorf("error reading configuration file: %s", e))
 	}
 	c := new(Configuration)
 	if e := json.Unmarshal(b, c); e != nil {
-		util.Fatal(fmt.Errorf("invalid configuration file: %s", e))
+		Fatal(fmt.Errorf("invalid configuration file: %s", e))
 	}
 
 	// Prepare directories, populate auto-generated fields and convert durations
 	c.Motion.Dir = MustCreateMotionDir()
 	c.Motion.ConfPath = MustDumpMotionConf(&c.Motion)
 	c.Motion.KeepAliveInterval = c.Motion.KeepAliveInterval * time.Second
-	c.AgentId = util.MustGetMachineId(AppID)
+	c.AgentId = MustGetMachineId(AppID)
 	c.CheckInInterval = c.CheckInInterval * time.Second
 	c.ConnectionTimeout = c.ConnectionTimeout * time.Second
 
@@ -79,29 +78,29 @@ func InitConfig() *Configuration {
 }
 
 func MustCreateMotionDir() string {
-	d := util.MustGetCWD()
+	d := MustGetCWD()
 	md := d + "/" + motionTargetDir
 	e := os.Mkdir(md, 0766)
 	if e != nil && !os.IsExist(e) {
-		util.Fatal(fmt.Errorf("unable to create dir for motion output: %s", e))
+		Fatal(fmt.Errorf("unable to create dir for motion output: %s", e))
 	}
 	return md
 }
 
 // MustDumpMotionConf generates motion.conf file and returns its path.
 func MustDumpMotionConf(m *Motion) string {
-	p := util.MustGetCWD() + "/" + motionConfFileName
+	p := MustGetCWD() + "/" + motionConfFileName
 	f, e := template.ParseFiles(motionConfTemplate)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error reading motion config template: %s", e))
+		Fatal(fmt.Errorf("error reading motion config template: %s", e))
 	}
 	w, e := os.Create(p)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error creating motion config: %s", e))
+		Fatal(fmt.Errorf("error creating motion config: %s", e))
 	}
 	e = f.Execute(w, m)
 	if e != nil {
-		util.Fatal(fmt.Errorf("error writing motion config: %s", e))
+		Fatal(fmt.Errorf("error writing motion config: %s", e))
 	}
 	return p
 }

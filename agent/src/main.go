@@ -2,17 +2,11 @@ package main
 
 import (
 	"flag"
-	"io.pburakov/homehub/agent/config"
-	"io.pburakov/homehub/agent/http"
-	"io.pburakov/homehub/agent/motion"
-	"io.pburakov/homehub/agent/rpc"
-	hh "io.pburakov/homehub/agent/schema"
-	"io.pburakov/homehub/agent/util"
 	"log"
 )
 
 func main() {
-	c := config.InitConfig()
+	c := InitConfig()
 
 	// Get flags from command line
 	fRemote := flag.String("r", c.RemoteHubAddress, "Remote hub server address (including port)")
@@ -22,23 +16,23 @@ func main() {
 	flag.Parse()
 
 	// Start motion detection and video-streaming process
-	go motion.StartMotionAndKeepAlive(&c.Motion)
+	go StartMotionAndKeepAlive(&c.Motion)
 
 	// Start serving files from motion-detector output
-	go http.ServeFolder(c)
+	go ServeFolder(c)
 
 	// Create RPC connection and schedule RPC check-in
-	conn := rpc.SetUpConnection(*fRemote)
+	conn := SetUpConnection(*fRemote)
 	defer conn.Close()
-	client := hh.NewHomeHubClient(conn)
-	util.Schedule(func() {
-		eIP, e := util.GetExternalIP()
+	client := NewHomeHubClient(conn)
+	Schedule(func() {
+		eIP, e := GetExternalIP()
 		if e != nil {
 			log.Printf("Error obtaining external address: %s", e)
 			return
 		}
-		req := rpc.BuildRequest(c.AgentId, eIP, *fWebPort, *fMotionPort, *fSensorsPort)
-		res, e := rpc.CheckIn(client, c.ConnectionTimeout, req)
+		req := BuildRequest(c.AgentId, eIP, *fWebPort, *fMotionPort, *fSensorsPort)
+		res, e := CheckIn(client, c.ConnectionTimeout, req)
 		if e != nil {
 			log.Printf("Check-in failed: %s", e)
 		} else {
@@ -46,5 +40,5 @@ func main() {
 		}
 	}, c.CheckInInterval)
 
-	util.Wait()
+	Wait()
 }

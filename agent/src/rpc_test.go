@@ -1,7 +1,6 @@
-package rpc
+package main
 
 import (
-	hh "io.pburakov/homehub/agent/schema"
 	"reflect"
 	"testing"
 )
@@ -17,7 +16,7 @@ func TestBuildRequest(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *hh.CheckInRequest
+		want *CheckInRequest
 	}{
 		{"noname",
 			args{
@@ -27,7 +26,7 @@ func TestBuildRequest(t *testing.T) {
 				pStream:  456,
 				pSensors: 789,
 			},
-			&hh.CheckInRequest{
+			&CheckInRequest{
 				AgentId:     "testid",
 				Address:     "testip",
 				WebPort:     123,

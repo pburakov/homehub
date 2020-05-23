@@ -15,7 +15,7 @@
     <protoSource>${project.basedir}/../schema/src/main/proto</protoSource>
     <workingDirectory>${project.basedir}/src</workingDirectory>
     <targetDirectory>${project.build.directory}/dist</targetDirectory>
-    <mainExecutable>cmd/main.go</mainExecutable>
+    <mainExecutable>main.go</mainExecutable>
   </properties>
 
   <parent>
@@ -78,7 +78,7 @@
               <arguments>
                 <argument>${protoSource}/homehub.proto</argument>
                 <argument>--plugin=protoc-gen-go=${gopath}/bin/protoc-gen-go</argument>
-                <argument>--go_out=plugins=grpc:schema</argument>
+                <argument>--go_out=plugins=grpc:.</argument>
                 <argument>--proto_path=${protoSource}</argument>
               </arguments>
             </configuration>
