@@ -22,6 +22,7 @@
     <!--versions-->
     <jdk.version>11</jdk.version>
     <protobuf.version>3.7.1</protobuf.version>
+    <protobuf.build>osx-x86_64</protobuf.build>
     <grpc.version>1.21.0</grpc.version>
     <junit.version>5.5.0</junit.version>
   </properties>
